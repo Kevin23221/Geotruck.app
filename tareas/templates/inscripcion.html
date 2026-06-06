@@ -1,1 +1,12 @@
-from django.shortcut import render
+<h1>Inscripción</h1>
+
+{{error}}
+
+<form action="/inscripcion/" method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+
+    <button>
+        Inscripción
+    </button>
+</form>
