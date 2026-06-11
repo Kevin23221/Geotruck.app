@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,11 +15,11 @@
         .logo span { color: var(--accent); }
         .subtitle { text-align: center; color: rgba(255,255,255,.45); font-size: 14px; margin-bottom: 32px; }
         label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: rgba(255,255,255,.45); margin-bottom: 6px; margin-top: 18px; }
-        input { width: 100%; background: rgba(255,255,255,.05); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 15px; transition: border-color .2s; }
+        input { width: 100%; background: rgba(255,255,255,.05); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 15px; transition: border-color .2s; }
         input:focus { outline: none; border-color: var(--accent); }
         input::placeholder { color: rgba(255,255,255,.25); }
-        .btn { display: block; width: 100%; margin-top: 28px; background: var(--accent); color: #fff; border: none; border-radius: 50px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background .2s; }
-        .btn:hover { background: #ea580c; }
+        .btn { display: block; width: 100%; margin-top: 28px; background: var(--accent); color: #fff; border: none; border-radius: 50px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(249,115,22,.3); transition: background .2s, transform .15s; }
+        .btn:hover { background: #ea580c; transform: translateY(-1px); }
         .footer-link { text-align: center; margin-top: 20px; font-size: 13px; color: rgba(255,255,255,.4); }
         .footer-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
         .messages { list-style: none; margin-bottom: 16px; }
@@ -36,12 +37,14 @@
         </ul>
         {% endif %}
 
-        <form method="POST">
+        <form method="POST" action="{% url 'login' %}">
             {% csrf_token %}
             <label>Usuario</label>
             <input type="text" name="username" placeholder="Tu nombre de usuario" required>
+
             <label>Contraseña</label>
             <input type="password" name="password" placeholder="••••••••" required>
+
             <button type="submit" class="btn">Iniciar sesión →</button>
         </form>
 
@@ -50,4 +53,4 @@
         </p>
     </div>
 </body>
-</html> 
+</html>
