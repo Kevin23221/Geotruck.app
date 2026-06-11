@@ -7,10 +7,6 @@ def home(request):
     return render(request, 'home.html')
 
 def register(request):
-    """
-    Esta vista maneja el registro manual utilizando los inputs personalizados
-    que diseñes en tu plantilla 'inscripcion.html'.
-    """
     if request.user.is_authenticated:
         return redirect('home')
 
@@ -34,7 +30,7 @@ def register(request):
             user = User.objects.create_user(username=username, email=email, password=password1)
             login(request, user)
             messages.success(request, f'¡Bienvenido a GeoTruck, {username}!')
-            return redirect('rutas') # Te redirige a la vista de tus rutas/tareas
+            return redirect('rutas')
 
     return render(request, 'inscripcion.html')
 

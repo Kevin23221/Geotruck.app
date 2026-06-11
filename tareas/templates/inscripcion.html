@@ -1,32 +1,16 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro — Geotruck</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root { --ink: #0a0f1e; --ink-2: #1c2540; --accent: #f97316; --border: rgba(255,255,255,0.08); }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: var(--ink); color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-        .card { background: var(--ink-2); border: 1px solid var(--border); border-radius: 20px; padding: 44px 40px; width: 100%; max-width: 440px; box-shadow: 0 24px 60px rgba(0,0,0,.4); }
-        .logo { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 8px; }
-        .logo span { color: var(--accent); }
-        .subtitle { text-align: center; color: rgba(255,255,255,.45); font-size: 14px; margin-bottom: 32px; }
-        label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: rgba(255,255,255,.45); margin-bottom: 6px; margin-top: 18px; }
-        input { width: 100%; background: rgba(255,255,255,.05); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; color: #fff; font-family: 'DM Sans', sans-serif; font-size: 15px; transition: border-color .2s; }
-        input:focus { outline: none; border-color: var(--accent); }
-        input::placeholder { color: rgba(255,255,255,.25); }
-        .btn { display: block; width: 100%; margin-top: 28px; background: var(--accent); color: #fff; border: none; border-radius: 50px; padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(249,115,22,.3); transition: background .2s, transform .15s; }
-        .btn:hover { background: #ea580c; transform: translateY(-1px); }
-        .footer-link { text-align: center; margin-top: 20px; font-size: 13px; color: rgba(255,255,255,.4); }
-        .footer-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
-        .messages { list-style: none; margin-bottom: 16px; }
-        .messages li { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 6px; }
-        .success { background: rgba(74,222,128,.15) !important; border-color: rgba(74,222,128,.3) !important; color: #86efac !important; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/inscripcion.css' %}">
 </head>
+
 <body>
     <div class="card">
         <div class="logo">Geo<span>truck</span></div>
@@ -62,4 +46,5 @@
         </p>
     </div>
 </body>
+
 </html>
