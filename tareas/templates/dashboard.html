@@ -1,0 +1,175 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Geotruck</title>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+
+<body>
+
+    <!-- ══════════════ SIDEBAR ══════════════ -->
+    <aside class="sidebar">
+        <div class="logo">🚛 Geotruck</div>
+
+        <nav>
+            <div class="nav-section">Principal</div>
+            <a href="{% url 'dashboard' %}" class="active">
+                <span class="icon">📊</span> Dashboard
+            </a>
+            <a href="#"><span class="icon">🗺️</span> Mapa en vivo</a>
+            <a href="#"><span class="icon">🛣️</span> Rutas</a>
+            <a href="#"><span class="icon">📓</span> Bitácoras</a>
+
+            <div class="nav-section">Gestión</div>
+            <a href="#"><span class="icon">👤</span> Conductores</a>
+            <a href="#"><span class="icon">🚚</span> Vehículos</a>
+            <a href="#"><span class="icon">📈</span> Reportes</a>
+
+            <div class="nav-section">Sistema</div>
+            <a href="#"><span class="icon">⚙️</span> Configuración</a>
+        </nav>
+
+        <div class="logout">
+            <a href="{% url 'logout' %}">🚪 Cerrar sesión</a>
+        </div>
+    </aside>
+
+    <!-- ══════════════ MAIN ══════════════ -->
+    <main class="main">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <h1>Resumen general</h1>
+            <div class="user-info">
+                <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+                <div class="avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Métricas -->
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="label">Viajes activos</div>
+                <div class="value">{{ viajes_activos }}</div>
+                <div class="sub">En ruta ahora</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Conductores</div>
+                <div class="value">{{ total_conductores }}</div>
+                <div class="sub">Registrados y activos</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Viajes hoy</div>
+                <div class="value">{{ viajes_hoy.count }}</div>
+                <div class="sub">Total de la jornada</div>
+            </div>
+            <div class="metric-card">
+                <div class="label">Completados</div>
+                <div class="value">{{ viajes_hoy|length }}</div>
+                <div class="sub">Finalizados hoy</div>
+            </div>
+        </div>
+
+        <!-- Mapa + Alertas -->
+        <div class="row-2">
+            <div class="card">
+                <h2>🗺️ Mapa en vivo</h2>
+                <div id="map"></div>
+            </div>
+
+            <div class="card">
+                <h2>🔔 Alertas recientes</h2>
+                <div class="alert-item">
+                    <div class="alert-dot dot-danger"></div>
+                    <div>
+                        <div class="alert-text">Motor apagado fuera de zona</div>
+                        <div class="alert-time">Hace 15 min</div>
+                    </div>
+                </div>
+                <div class="alert-item">
+                    <div class="alert-dot dot-warning"></div>
+                    <div>
+                        <div class="alert-text">Retraso en entrega — Bogotá › Cali</div>
+                        <div class="alert-time">Hace 40 min</div>
+                    </div>
+                </div>
+                <div class="alert-item">
+                    <div class="alert-dot dot-info"></div>
+                    <div>
+                        <div class="alert-text">Exceso de velocidad detectado</div>
+                        <div class="alert-time">Hace 1 h</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla viajes -->
+        <div class="card">
+            <h2>🛣️ Viajes de hoy</h2>
+            {% if viajes_hoy %}
+            <table class="trip-table">
+                <thead>
+                    <tr>
+                        <th>Conductor</th>
+                        <th>Ruta</th>
+                        <th>Vehículo</th>
+                        <th>Inicio</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for viaje in viajes_hoy %}
+                    <tr>
+                        <td>{{ viaje.conductor.usuario.get_full_name|default:viaje.conductor.usuario.username }}</td>
+                        <td>{{ viaje.origen }} › {{ viaje.destino }}</td>
+                        <td>{{ viaje.vehiculo.placa }}</td>
+                        <td>{{ viaje.fecha_inicio|date:"H:i" }}</td>
+                        <td>
+                            {% if viaje.estado == 'en_ruta' %}
+                            <span class="pill pill-ruta">En ruta</span>
+                            {% elif viaje.estado == 'pausa' %}
+                            <span class="pill pill-pausa">Pausa</span>
+                            {% elif viaje.estado == 'completado' %}
+                            <span class="pill pill-done">Completado</span>
+                            {% else %}
+                            <span class="pill pill-cancel">Cancelado</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color:#a0aec0; font-size:0.9rem;">No hay viajes registrados hoy.</p>
+            {% endif %}
+        </div>
+    </main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([4.711, -74.0721], 6);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+
+  ubicaciones.forEach(function(u) {
+    L.marker([u.lat, u.lng])
+      .addTo(map)
+      .bindPopup(
+        '<strong>' + u.conductor + '</strong><br>' +
+        u.origen + ' → ' + u.destino
+      );
+  });
+</script>
+</body>
+
+</html>
