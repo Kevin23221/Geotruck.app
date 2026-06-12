@@ -8,7 +8,7 @@ def home(request):
 
 def register(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         username  = request.POST.get('username', '').strip()
@@ -30,13 +30,13 @@ def register(request):
             user = User.objects.create_user(username=username, email=email, password=password1)
             login(request, user)
             messages.success(request, f'¡Bienvenido a GeoTruck, {username}!')
-            return redirect('rutas')
+            return redirect('dashboard')
 
     return render(request, 'inscripcion.html')
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -45,7 +45,7 @@ def login_view(request):
 
         if user:
             login(request, user)
-            return redirect('home')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Usuario o contraseña incorrectos.')
 
@@ -57,3 +57,7 @@ def logout_view(request):
 
 def rutas(request):
     return render(request, 'tareas.html')
+
+def dashboard(request):
+    return render(request, 'dashboard.html')
+

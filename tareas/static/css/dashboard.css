@@ -1,0 +1,286 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f6f9;
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+    width: 220px;
+    background: #1a1f2e;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    position: fixed;
+    height: 100vh;
+}
+
+.sidebar .logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 0 1.5rem 1.5rem;
+    color: #4e9af1;
+    letter-spacing: 1px;
+}
+
+.sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.75rem 1.5rem;
+    color: #a0aec0;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: #2d3748;
+    color: #fff;
+}
+
+.sidebar nav a span.icon {
+    font-size: 1.1rem;
+}
+
+.sidebar .nav-section {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #4a5568;
+    padding: 1rem 1.5rem 0.3rem;
+}
+
+.sidebar .logout {
+    margin-top: auto;
+    padding: 1rem 1.5rem;
+}
+
+.sidebar .logout a {
+    color: #fc8181;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── MAIN ── */
+.main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.topbar h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #1a1f2e;
+}
+
+.topbar .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #4a5568;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #4e9af1;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* ── MÉTRICAS ── */
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.metric-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.metric-card .label {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.metric-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1f2e;
+}
+
+.metric-card .sub {
+    font-size: 0.75rem;
+    color: #a0aec0;
+    margin-top: 4px;
+}
+
+/* ── ROW DOS COLUMNAS ── */
+.row-2 {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1rem;
+}
+
+/* ── CARD ── */
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.card h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a1f2e;
+    margin-bottom: 1rem;
+}
+
+/* ── MAPA ── */
+#map {
+    height: 280px;
+    border-radius: 10px;
+    z-index: 0;
+}
+
+/* ── TABLA VIAJES ── */
+.trip-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.trip-table th {
+    text-align: left;
+    color: #718096;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 0 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.trip-table td {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f7fafc;
+    color: #2d3748;
+}
+
+.pill {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-weight: 600;
+}
+
+.pill-ruta {
+    background: #c6f6d5;
+    color: #276749;
+}
+
+.pill-pausa {
+    background: #fefcbf;
+    color: #975a16;
+}
+
+.pill-done {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.pill-cancel {
+    background: #fed7d7;
+    color: #9b2c2c;
+}
+
+/* ── LISTA ALERTAS ── */
+.alert-item {
+    display: flex;
+    gap: 10px;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f7fafc;
+    font-size: 0.85rem;
+}
+
+.alert-item:last-child {
+    border-bottom: none;
+}
+
+.alert-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+.dot-danger {
+    background: #fc8181;
+}
+
+.dot-warning {
+    background: #f6ad55;
+}
+
+.dot-info {
+    background: #63b3ed;
+}
+
+.alert-text {
+    color: #2d3748;
+    line-height: 1.4;
+}
+
+.alert-time {
+    font-size: 0.72rem;
+    color: #a0aec0;
+}
+
+/* responsive básico */
+@media (max-width: 900px) {
+    .metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .row-2 {
+        grid-template-columns: 1fr;
+    }
+}
