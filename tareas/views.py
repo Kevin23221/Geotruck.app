@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from .models import Ruta, Vehiculo
 
 def home(request):
     return render(request, 'home.html')
@@ -61,3 +64,89 @@ def rutas(request):
 def dashboard(request):
     return render(request, 'dashboard.html')
 
+
+@login_required(login_url='login')
+def rutas(request):
+    lista_rutas = Ruta.objects.all().order_by('-fecha_creacion')
+    return render(request, 'rutas.html', {'rutas': lista_rutas})
+
+@login_required(login_url='login')
+def agregar_ruta(request):
+    if request.method == 'POST':
+        origen      = request.POST.get('origen', '').strip()
+        destino     = request.POST.get('destino', '').strip()
+        distancia   = request.POST.get('distancia_km', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+
+        if origen and destino and distancia:
+            Ruta.objects.create(
+                origen=origen,
+                destino=destino,
+                distancia_km=distancia,
+                descripcion=descripcion,
+                creada_por=request.user
+            )
+            messages.success(request, 'Ruta agregada correctamente.')
+        else:
+            messages.error(request, 'Origen, destino y distancia son obligatorios.')
+
+    return redirect('rutas')
+
+@login_required(login_url='login')
+def eliminar_ruta(request, ruta_id):
+    ruta = get_object_or_404(Ruta, id=ruta_id)
+
+    if request.user.is_staff or ruta.creada_por == request.user:
+        ruta.delete()
+        messages.success(request, 'Ruta eliminada.')
+    else:
+        messages.error(request, 'No tienes permiso para eliminar esta ruta.')
+
+    return redirect('rutas')
+
+@login_required(login_url='login')
+def vehiculos(request):
+    lista = Vehiculo.objects.all().select_related('conductor')
+    usuarios = User.objects.all()
+    return render(request, 'vehiculos.html', {'vehiculos': lista, 'usuarios': usuarios})
+
+@login_required(login_url='login')
+def agregar_vehiculo(request):
+    if request.method == 'POST':
+        placa        = request.POST.get('placa', '').strip().upper()
+        marca        = request.POST.get('marca', '').strip()
+        modelo       = request.POST.get('modelo', '').strip()
+        destino      = request.POST.get('destino_asignado', '').strip()
+        conductor_id = request.POST.get('conductor_id')
+        foto         = request.FILES.get('foto')
+
+        if placa and marca and modelo:
+            if Vehiculo.objects.filter(placa=placa).exists():
+                messages.error(request, 'Ya existe un vehículo con esa placa.')
+            else:
+                conductor = User.objects.filter(id=conductor_id).first() if conductor_id else None
+                Vehiculo.objects.create(
+                    placa=placa,
+                    marca=marca,
+                    modelo=modelo,
+                    destino_asignado=destino,
+                    conductor=conductor,
+                    foto=foto
+                )
+                messages.success(request, 'Vehículo agregado correctamente.')
+        else:
+            messages.error(request, 'Placa, marca y modelo son obligatorios.')
+
+    return redirect('vehiculos')
+
+@login_required(login_url='login')
+def eliminar_vehiculo(request, vehiculo_id):
+    vehiculo = get_object_or_404(Vehiculo, id=vehiculo_id)
+
+    if request.user.is_staff or vehiculo.conductor == request.user:
+        vehiculo.delete()
+        messages.success(request, 'Vehículo eliminado.')
+    else:
+        messages.error(request, 'No tienes permiso para eliminar este vehículo.')
+
+    return redirect('vehiculos')
