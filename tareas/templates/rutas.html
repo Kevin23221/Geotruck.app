@@ -1,166 +1,92 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Rutas – Geotruck</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; display: flex; min-height: 100vh; }
+{% extends 'base.html' %}
+{% load static %}
 
-    .sidebar {
-      width: 220px; background: #1a1f2e; color: #fff;
-      display: flex; flex-direction: column; padding: 1.5rem 0;
-      position: fixed; height: 100vh;
-    }
-    .sidebar .logo { font-size: 1.2rem; font-weight: 700; padding: 0 1.5rem 1.5rem; color: #4e9af1; }
-    .sidebar nav a {
-      display: flex; align-items: center; gap: 10px;
-      padding: 0.75rem 1.5rem; color: #a0aec0;
-      text-decoration: none; font-size: 0.9rem;
-    }
-    .sidebar nav a:hover, .sidebar nav a.active { background: #2d3748; color: #fff; }
-    .nav-section { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: #4a5568; padding: 1rem 1.5rem 0.3rem; }
-    .sidebar .logout { margin-top: auto; padding: 1rem 1.5rem; }
-    .sidebar .logout a { color: #fc8181; text-decoration: none; font-size: 0.9rem; }
+{% block title %}Rutas - GeoTruck{% endblock %}
 
-    .main { margin-left: 220px; flex: 1; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
-    h1 { font-size: 1.4rem; font-weight: 600; color: #1a1f2e; }
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/rutas.css' %}">
+{% endblock %}
 
-    .msg { padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 0.5rem; }
-    .msg-success { background: #c6f6d5; color: #276749; }
-    .msg-error   { background: #fed7d7; color: #9b2c2c; }
+{% block content %}
+<h1>🛣️ Gestión de Rutas</h1>
 
-    .card { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .card h2 { font-size: 1rem; font-weight: 600; color: #1a1f2e; margin-bottom: 1rem; }
+{% for message in messages %}
+<div class="msg {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">
+  {{ message }}
+</div>
+{% endfor %}
 
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
-    label { font-size: 0.8rem; color: #718096; }
-    input, textarea {
-      padding: 0.6rem 0.75rem; border: 1px solid #e2e8f0;
-      border-radius: 8px; font-size: 0.9rem; color: #2d3748; outline: none;
-    }
-    input:focus, textarea:focus { border-color: #4e9af1; }
-    textarea { resize: vertical; min-height: 70px; }
-    .btn-add {
-      margin-top: 0.75rem; padding: 0.65rem 1.5rem;
-      background: #4e9af1; color: #fff; border: none;
-      border-radius: 8px; font-size: 0.9rem; cursor: pointer;
-    }
-    .btn-add:hover { background: #3182ce; }
+<!-- Formulario agregar -->
+<div class="card">
+  <h2>➕ Agregar nueva ruta</h2>
+  <form method="POST" action="{% url 'agregar_ruta' %}">
+    {% csrf_token %}
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Origen</label>
+        <input type="text" name="origen" placeholder="Ej: Bogotá" required />
+      </div>
+      <div class="form-group">
+        <label>Destino</label>
+        <input type="text" name="destino" placeholder="Ej: Medellín" required />
+      </div>
+      <div class="form-group">
+        <label>Distancia (km)</label>
+        <input type="number" name="distancia_km" placeholder="Ej: 415" step="0.01" required />
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <input type="text" name="descripcion" placeholder="Opcional" />
+      </div>
+    </div>
+    <button type="submit" class="btn-add">Agregar ruta</button>
+  </form>
+</div>
 
-    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    thead th {
-      text-align: left; color: #718096; font-size: 0.75rem;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      padding: 0 0 0.6rem; border-bottom: 1px solid #e2e8f0;
-    }
-    tbody td { padding: 0.65rem 0; border-bottom: 1px solid #f7fafc; color: #2d3748; }
-    .btn-del {
-      padding: 3px 12px; background: #fed7d7; color: #9b2c2c;
-      border: none; border-radius: 6px; font-size: 0.78rem; cursor: pointer;
-    }
-    .btn-del:hover { background: #fc8181; color: #fff; }
-    .creador { font-size: 0.78rem; color: #a0aec0; }
-    .empty { color: #a0aec0; font-size: 0.9rem; padding: 1rem 0; }
-  </style>
-</head>
+<!-- Tabla de rutas -->
+<div class="card">
+  <h2>📋 Rutas registradas</h2>
+  {% if rutas %}
+  <table>
+    <thead>
+      <tr>
+        <th>Origen</th>
+        <th>Destino</th>
+        <th>Distancia</th>
+        <th>Descripción</th>
+        <th>Creada por</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ruta in rutas %}
+      <tr>
+        <td>{{ ruta.origen }}</td>
+        <td>{{ ruta.destino }}</td>
+        <td>{{ ruta.distancia_km }} km</td>
+        <td>{{ ruta.descripcion|default:"—" }}</td>
+        <td class="creador">{{ ruta.creada_por.username|default:"—" }}</td>
+        <td>
+          {% if request.user.is_staff or ruta.creada_por == request.user %}
+          <form method="POST" action="{% url 'eliminar_ruta' ruta.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn-del" onclick="return confirm('¿Eliminar esta ruta?')">
+              Eliminar
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay rutas registradas aún.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
+
 <body>
 
-<aside class="sidebar">
-  <div class="logo">🚛 Geotruck</div>
-  <nav>
-    <div class="nav-section">Principal</div>
-    <a href="{% url 'dashboard' %}">📊 Dashboard</a>
-    <a href="{% url 'rutas' %}" class="active">🛣️ Rutas</a>
-    <div class="nav-section">Sistema</div>
-    <a href="#">⚙️ Configuración</a>
-  </nav>
-  <div class="logout">
-    <a href="{% url 'logout' %}">🚪 Cerrar sesión</a>
-  </div>
-</aside>
-
-<main class="main">
-  <h1>🛣️ Gestión de Rutas</h1>
-
-  {% for message in messages %}
-    <div class="msg {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">
-      {{ message }}
-    </div>
-  {% endfor %}
-
-  <!-- Formulario agregar -->
-  <div class="card">
-    <h2>➕ Agregar nueva ruta</h2>
-    <form method="POST" action="{% url 'agregar_ruta' %}">
-      {% csrf_token %}
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Origen</label>
-          <input type="text" name="origen" placeholder="Ej: Bogotá" required/>
-        </div>
-        <div class="form-group">
-          <label>Destino</label>
-          <input type="text" name="destino" placeholder="Ej: Medellín" required/>
-        </div>
-        <div class="form-group">
-          <label>Distancia (km)</label>
-          <input type="number" name="distancia_km" placeholder="Ej: 415" step="0.01" required/>
-        </div>
-        <div class="form-group">
-          <label>Descripción</label>
-          <input type="text" name="descripcion" placeholder="Opcional"/>
-        </div>
-      </div>
-      <button type="submit" class="btn-add">Agregar ruta</button>
-    </form>
-  </div>
-
-  <!-- Tabla de rutas -->
-  <div class="card">
-    <h2>📋 Rutas registradas</h2>
-    {% if rutas %}
-    <table>
-      <thead>
-        <tr>
-          <th>Origen</th>
-          <th>Destino</th>
-          <th>Distancia</th>
-          <th>Descripción</th>
-          <th>Creada por</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for ruta in rutas %}
-        <tr>
-          <td>{{ ruta.origen }}</td>
-          <td>{{ ruta.destino }}</td>
-          <td>{{ ruta.distancia_km }} km</td>
-          <td>{{ ruta.descripcion|default:"—" }}</td>
-          <td class="creador">{{ ruta.creada_por.username|default:"—" }}</td>
-          <td>
-            {% if request.user.is_staff or ruta.creada_por == request.user %}
-            <form method="POST" action="{% url 'eliminar_ruta' ruta.id %}" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn-del"
-                onclick="return confirm('¿Eliminar esta ruta?')">
-                Eliminar
-              </button>
-            </form>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p class="empty">No hay rutas registradas aún.</p>
-    {% endif %}
-  </div>
-</main>
-
 </body>
-</html>
