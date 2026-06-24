@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Bitacoras{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/bitacoras.css' %}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 {% endblock %}
 
@@ -108,19 +108,6 @@
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const ubicaciones = [
-        {
-            lat: 4.711,
-            lng: -74.0721,
-            conductor: "Juan Pérez",
-            origen: "Bogotá",
-            destino: "Medellín"
-        }
-    ];
-
-    ubicaciones.forEach(function (u) {
-        console.log(u);
-    });
     const map = L.map('map').setView([4.711, -74.0721], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

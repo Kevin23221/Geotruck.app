@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from .models import Ruta, Vehiculo
+import json
 
 def home(request):
     return render(request, 'home.html')
@@ -57,9 +58,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
-
-def rutas(request):
-    return render(request, 'tareas.html')
 
 def dashboard(request):
     return render(request, 'dashboard.html')
@@ -150,3 +148,27 @@ def eliminar_vehiculo(request, vehiculo_id):
         messages.error(request, 'No tienes permiso para eliminar este vehículo.')
 
     return redirect('vehiculos')
+
+
+def mapa_view(request):
+
+    rutas_activas = Ruta.objects.filter(activa=True).select_related('conductor')
+
+    ubicaciones = []
+
+    for ruta in rutas_activas:
+        if ruta.lat_actual is not None and ruta.lng_actual is not None:
+            ubicaciones.append({
+                "lat": ruta.lat_actual,
+                "lng": ruta.lng_actual,
+                "conductor": ruta.conductor.username if ruta.conductor else "Sin conductor",
+                "origen": ruta.origen,
+                "destino": ruta.destino
+            })
+
+    context = {
+        "ubicaciones_json": json.dumps(ubicaciones),
+        "total_rutas": rutas_activas.count(),
+    }
+
+    return render(request, "mapas.html", context)

@@ -1,15 +1,17 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Geotruck{% endblock %}</title>
 
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Geotruck{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
     {% block extra_css %}
+
     {% endblock %}
 </head>
+
 <body>
     <aside class="sidebar">
         <div class="logo">🚛 Geotruck</div>
@@ -19,7 +21,7 @@
             <a href="{% url 'dashboard' %}" class="active">
                 <span class="icon">📊</span> Dashboard
             </a>
-            <a href="#"><span class="icon">🗺️</span> Mapa en vivo</a>
+            <a href="{% url 'mapas' %}"><span class="icon">🗺️</span> Mapa en vivo</a>
             <a href="{% url 'rutas' %}"><span class="icon">🛣️</span> Rutas</a>
             <a href="#"><span class="icon">📓</span> Bitácoras</a>
 
@@ -38,7 +40,17 @@
     </aside>
 
     <main class="main">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="user-info">
+                <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+                <div class="avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+            </div>
+        </div>
         {% block content %}
+
         {% endblock %}
     </main>
 
@@ -46,4 +58,5 @@
     {% endblock %}
 
 </body>
+
 </html>

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mapa en Vivo | Geotruck{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'css/mapas.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<div class="stat-card">
+    <h3>Conductores en ruta</h3>
+    <span>{{ total_conductores|default:"0" }}</span>
+</div>
+
+<div class="stat-card">
+    <h3>Rutas activas</h3>
+    <span>{{ total_rutas|default:"0" }}</span>
+</div>
+
+<!-- Mapa + Alertas -->
+<div class="row-2">
+    <div class="card">
+        <h2>🗺️ Mapa en vivo</h2>
+        <div id="map"></div>
+    </div>
+
+    <div class="card">
+        <h2>🔔 Alertas recientes</h2>
+        <div class="alert-item">
+            <div class="alert-dot dot-danger"></div>
+            <div>
+                <div class="alert-text">Motor apagado fuera de zona</div>
+                <div class="alert-time">Hace 15 min</div>
+            </div>
+        </div>
+        <div class="alert-item">
+            <div class="alert-dot dot-warning"></div>
+            <div>
+                <div class="alert-text">Retraso en entrega — Bogotá › Cali</div>
+                <div class="alert-time">Hace 40 min</div>
+            </div>
+        </div>
+        <div class="alert-item">
+            <div class="alert-dot dot-info"></div>
+            <div>
+                <div class="alert-text">Exceso de velocidad detectado</div>
+                <div class="alert-time">Hace 1 h</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+const ubicaciones = JSON.parse('{{ ubicaciones_json|escapejs }}');
+const map = L.map('map').setView([4.711, -74.0721], 6);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+ubicaciones.forEach(u => {
+    if (u.lat && u.lng) {
+        L.marker([u.lat, u.lng])
+            .addTo(map)
+            .bindPopup(`
+                <strong>${u.conductor}</strong><br>
+                ${u.origen} → ${u.destino}
+            `);
+    }
+});
+</script>
+{% endblock %}

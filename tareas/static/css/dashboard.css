@@ -84,40 +84,6 @@ body {
     gap: 1.5rem;
 }
 
-/* ── TOPBAR ── */
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.topbar h1 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #1a1f2e;
-}
-
-.topbar .user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.9rem;
-    color: #4a5568;
-}
-
-.avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #4e9af1;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.85rem;
-}
-
 /* ── MÉTRICAS ── */
 .metrics {
     display: grid;

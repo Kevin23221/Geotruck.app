@@ -1,0 +1,123 @@
+/* ── GRID PRINCIPAL ── */
+.row-2 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    align-items: start;
+}
+
+/* ── TARJETAS ── */
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+    border: 1px solid #edf2f7;
+}
+
+/* Títulos dentro de cards */
+.card h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1f2e;
+    margin-bottom: 1rem;
+}
+
+/* ── MAPA ── */
+#map {
+    height: 520px;
+    width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* ── ESTADÍSTICAS ── */
+.stat-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+    border: 1px solid #edf2f7;
+
+    display: inline-block;
+    min-width: 200px;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-card h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #718096;
+    margin-bottom: 0.4rem;
+}
+
+.stat-card span {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1f2e;
+}
+
+/* ── ALERTAS ── */
+.alert-item {
+    display: flex;
+    gap: 10px;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.alert-item:last-child {
+    border-bottom: none;
+}
+
+.alert-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+}
+
+/* colores */
+.dot-danger {
+    background: #ef4444;
+}
+
+.dot-warning {
+    background: #f59e0b;
+}
+
+.dot-info {
+    background: #3b82f6;
+}
+
+.alert-text {
+    font-size: 0.85rem;
+    color: #2d3748;
+    line-height: 1.4;
+}
+
+.alert-time {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .row-2 {
+        grid-template-columns: 1fr;
+    }
+
+    #map {
+        height: 400px;
+    }
+
+    .stat-card {
+        width: 100%;
+        margin-right: 0;
+    }
+}
