@@ -25,7 +25,7 @@
             <a href="{% url 'viaje-crear' %}"><span class="icon">📓</span> Bitácoras</a>
             {% if es_admin or es_supervisor %}
             <div class="nav-section">Gestión</div>
-            <a href="#"><span class="icon">👤</span> Conductores</a>
+            <a href="{% url 'conductores' %}"><span class="icon">👤</span> Conductores</a>
             <a href="{% url 'vehiculos' %}"><span class="icon">🚚</span> Vehículos</a>
             <a href="{% url 'reportes' %}"><span class="icon">📈</span> Reportes</a>
             <a href="{% url 'rutas' %}"><span class="icon">🛣️</span> Rutas</a>
