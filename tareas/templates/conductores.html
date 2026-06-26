@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conductores{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/conductores.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Encabezado -->
+<div class="cd-header">
+  <div>
+    <h1 class="cd-title">👤 Conductores</h1>
+    <p class="cd-sub">Registro y gestión de conductores activos</p>
+  </div>
+  <button class="cd-btn-primary" onclick="cdToggleForm()">+ Registrar conductor</button>
+</div>
+
+<!-- Mensajes -->
+{% for msg in messages %}
+<div class="cd-msg cd-msg--{{ msg.tags }}">{{ msg }}</div>
+{% endfor %}
+
+<!-- Formulario de registro (oculto por defecto) -->
+<div class="card cd-form-card" id="cd-form-card" style="display:none">
+  <h2>📋 Nuevo conductor</h2>
+  <form method="post" action="{% url 'agregar_conductor' %}" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <div class="cd-grid-3">
+      <div class="cd-field"><label>Nombre completo *</label><input type="text" name="nombre" placeholder="Ej. Carlos Ramírez" required></div>
+      <div class="cd-field"><label>Cédula / ID *</label><input type="text" name="cedula" placeholder="Ej. 1020304050" required></div>
+      <div class="cd-field"><label>Licencia *</label><input type="text" name="licencia" placeholder="Ej. C2-12345" required></div>
+    </div>
+    <div class="cd-grid-3">
+      <div class="cd-field"><label>Teléfono</label><input type="text" name="telefono" placeholder="Ej. 300 123 4567"></div>
+      <div class="cd-field"><label>Correo electrónico</label><input type="email" name="email" placeholder="Ej. carlos@email.com"></div>
+      <div class="cd-field"><label>Fecha de nacimiento</label><input type="date" name="fecha_nacimiento"></div>
+    </div>
+    <div class="cd-grid-2">
+      <div class="cd-field"><label>Estado</label>
+        <select name="estado">
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+          <option value="en_ruta">En ruta</option>
+          <option value="suspendido">Suspendido</option>
+        </select>
+      </div>
+      <div class="cd-field"><label>Foto</label><input type="file" name="foto" accept="image/*"></div>
+    </div>
+    <div class="cd-field" style="margin-bottom:1rem"><label>Observaciones</label><textarea name="observaciones" rows="2" placeholder="Notas adicionales..."></textarea></div>
+    <div class="cd-form-actions">
+      <button type="button" class="cd-btn-secondary" onclick="cdToggleForm()">Cancelar</button>
+      <button type="submit" class="cd-btn-primary">Guardar conductor</button>
+    </div>
+  </form>
+</div>
+
+<!-- Lista de conductores -->
+{% if conductores %}
+<div class="cd-grid-cards">
+  {% for c in conductores %}
+  <div class="cd-card">
+    <div class="cd-card-foto">
+      {% if c.foto %}
+        <img src="{{ c.foto.url }}" alt="{{ c.nombre }}">
+      {% else %}
+        <div class="cd-avatar">{{ c.nombre|first|upper }}</div>
+      {% endif %}
+      <span class="cd-estado cd-estado--{{ c.estado }}">
+        {% if c.estado == 'activo' %}✅ Activo
+        {% elif c.estado == 'en_ruta' %}🚛 En ruta
+        {% elif c.estado == 'inactivo' %}⏸ Inactivo
+        {% else %}🚫 Suspendido{% endif %}
+      </span>
+    </div>
+    <div class="cd-card-info">
+      <p class="cd-card-nombre">{{ c.nombre }}</p>
+      <p class="cd-card-detalle">🪪 Cédula: {{ c.cedula }}</p>
+      <p class="cd-card-detalle">📄 Licencia: {{ c.licencia }}</p>
+      {% if c.telefono %}<p class="cd-card-detalle">📞 {{ c.telefono }}</p>{% endif %}
+      {% if c.email %}<p class="cd-card-detalle">✉️ {{ c.email }}</p>{% endif %}
+      {% if c.observaciones %}<p class="cd-card-obs">{{ c.observaciones }}</p>{% endif %}
+    </div>
+    <div class="cd-card-footer">
+      <span class="cd-ingreso">Ingresó: {{ c.fecha_ingreso|date:"d M Y" }}</span>
+      <form method="post" action="{% url 'eliminar_conductor' c.id %}" onsubmit="return confirm('¿Eliminar a {{ c.nombre }}?')">
+        {% csrf_token %}
+        <button type="submit" class="cd-btn-del">🗑 Eliminar</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card cd-empty">
+  <p>👤 Aún no hay conductores registrados.</p>
+  <p style="font-size:13px; color:#a0aec0; margin-top:6px">Haz clic en "Registrar conductor" para agregar el primero.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function cdToggleForm() {
+  const card = document.getElementById('cd-form-card');
+  card.style.display = card.style.display === 'none' ? 'block' : 'none';
+  if (card.style.display === 'block') card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+{% endblock %}
