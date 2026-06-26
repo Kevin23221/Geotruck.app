@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from .models import Ruta, Vehiculo
+from .models import Ruta, Vehiculo, Viaje, GastoViaje, EvidenciaViaje
+from decimal import Decimal
 import json
 
 def home(request):
@@ -172,3 +173,44 @@ def mapa_view(request):
     }
 
     return render(request, "mapas.html", context)
+
+CATS_OP = {'Peaje', 'Combustible', 'Manifiesto de carga'}
+
+@login_required(login_url='login')
+def viaje_crear(request):
+    if request.method == 'POST':
+        v = Viaje.objects.create(
+            conductor_nombre   = request.POST.get('conductor_nombre', ''),
+            conductor_licencia = request.POST.get('conductor_licencia', ''),
+            conductor_cedula   = request.POST.get('conductor_cedula', ''),
+            placa              = request.POST.get('placa', ''),
+            modelo             = request.POST.get('modelo', ''),
+            fecha_salida       = request.POST.get('fecha_salida') or None,
+            fecha_llegada      = request.POST.get('fecha_llegada') or None,
+            origen             = request.POST.get('origen', ''),
+            destino            = request.POST.get('destino', ''),
+            km_recorridos      = request.POST.get('km_recorridos') or None,
+            tipo_carga         = request.POST.get('tipo_carga', ''),
+            recursos           = request.POST.get('recursos', ''),
+            observaciones      = request.POST.get('observaciones', ''),
+        )
+        descs  = request.POST.getlist('gastos_descripcion[]')
+        cats   = request.POST.getlist('gastos_categoria[]')
+        montos = request.POST.getlist('gastos_monto[]')
+        op = ad = Decimal('0')
+        for desc, cat, monto in zip(descs, cats, montos):
+            if monto:
+                val = Decimal(monto)
+                GastoViaje.objects.create(viaje=v, descripcion=desc, categoria=cat, monto=val)
+                if cat in CATS_OP: op += val
+                else: ad += val
+        v.total_operativo = op
+        v.total_adicional = ad
+        v.total_viaje     = op + ad
+        v.save()
+        for img in request.FILES.getlist('evidencias'):
+            EvidenciaViaje.objects.create(viaje=v, imagen=img)
+        return redirect('viaje-historial')
+
+    viajes = Viaje.objects.order_by('-creado_en')
+    return render(request, 'bitacoras.html', {'viajes': viajes})
