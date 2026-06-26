@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User, Group
+from django.contrib.messages import get_messages
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Ruta, Vehiculo, Conductor, Viaje, GastoViaje, EvidenciaViaje
@@ -42,12 +43,19 @@ def register(request):
 
 
 def login_view(request):
+    
+    storage = get_messages(request)
+    for _ in storage:
+        pass
+    
     if request.user.is_authenticated:
         return redirect('dashboard')
+    
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
-        user     = authenticate(request, username=username, password=password)
+        user     = authenticate(request, username=username,password=password)
+        
         if user:
             login(request, user)
             return redirect('dashboard')
@@ -61,12 +69,11 @@ def logout_view(request):
     return redirect('home')
 
 @login_required(login_url='login')
-
-
 def dashboard(request):
     return render(request, "dashboard.html")
 
 @login_required(login_url='login')
+@roles_permitidos("administrador", "supervisor")
 def rutas(request):
     lista_rutas = Ruta.objects.all().order_by('-fecha_creacion')
     return render(request, 'rutas.html', {'rutas': lista_rutas})
@@ -106,6 +113,7 @@ def eliminar_ruta(request, ruta_id):
 
 
 @login_required(login_url='login')
+@roles_permitidos("administrador", "supervisor")
 def vehiculos(request):
     lista    = Vehiculo.objects.all().select_related('conductor')
     usuarios = User.objects.all()
@@ -165,16 +173,9 @@ def mapa_view(request):
         "total_rutas": rutas_activas.count(),
     })
 
-    return render(request, "mapas.html", context)
-
 @login_required(login_url='login')
 @roles_permitidos("administrador", "supervisor")
 def reportes(request):
-
-    if not (es_admin(request.user) or es_supervisor(request.user)):
-        messages.error(request, "No tienes permiso para acceder a Reportes.")
-        return redirect("dashboard")
-
     total_rutas = Ruta.objects.count()
     total_vehiculos = Vehiculo.objects.count()
     total_conductores = User.objects.count()
@@ -192,23 +193,11 @@ def reportes(request):
 
     return render(request, 'reportes.html', context)
 
-    total_rutas       = Ruta.objects.count()
-    total_vehiculos   = Vehiculo.objects.count()
-    total_conductores = User.objects.count()
-    rutas_recientes   = Ruta.objects.order_by('-fecha_creacion')[:5]
-    vehiculos_list    = Vehiculo.objects.select_related('conductor').all()
-    return render(request, 'reportes.html', {
-        'total_rutas': total_rutas, 'total_vehiculos': total_vehiculos,
-        'total_conductores': total_conductores, 'rutas_recientes': rutas_recientes,
-        'vehiculos_list': vehiculos_list,
-    })
-
-
 # ── BITÁCORAS ──────────────────────────────────────────
 CATS_OP = {'Peaje', 'Combustible', 'Manifiesto de carga'}
 
 @login_required(login_url='login')
-@roles_permitidos("administrador", "supervisor")
+@roles_permitidos("administrador", "supervisor", "conductor")
 def viaje_crear(request):
     if request.method == 'POST':
         v = Viaje.objects.create(

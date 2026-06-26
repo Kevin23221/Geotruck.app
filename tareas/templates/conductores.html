@@ -29,13 +29,18 @@
   <form method="post" action="{% url 'agregar_conductor' %}" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
     <div class="cd-grid-3">
-      <div class="cd-field"><label>Nombre completo *</label><input type="text" name="nombre" placeholder="Ej. Carlos Ramírez" required></div>
-      <div class="cd-field"><label>Cédula / ID *</label><input type="text" name="cedula" placeholder="Ej. 1020304050" required></div>
-      <div class="cd-field"><label>Licencia *</label><input type="text" name="licencia" placeholder="Ej. C2-12345" required></div>
+      <div class="cd-field"><label>Nombre completo *</label><input type="text" name="nombre"
+          placeholder="Ej. Carlos Ramírez" required></div>
+      <div class="cd-field"><label>Cédula / ID *</label><input type="text" name="cedula" placeholder="Ej. 1020304050"
+          required></div>
+      <div class="cd-field"><label>Licencia *</label><input type="text" name="licencia" placeholder="Ej. C2-12345"
+          required></div>
     </div>
     <div class="cd-grid-3">
-      <div class="cd-field"><label>Teléfono</label><input type="text" name="telefono" placeholder="Ej. 300 123 4567"></div>
-      <div class="cd-field"><label>Correo electrónico</label><input type="email" name="email" placeholder="Ej. carlos@email.com"></div>
+      <div class="cd-field"><label>Teléfono</label><input type="text" name="telefono" placeholder="Ej. 300 123 4567">
+      </div>
+      <div class="cd-field"><label>Correo electrónico</label><input type="email" name="email"
+          placeholder="Ej. carlos@email.com"></div>
       <div class="cd-field"><label>Fecha de nacimiento</label><input type="date" name="fecha_nacimiento"></div>
     </div>
     <div class="cd-grid-2">
@@ -49,7 +54,8 @@
       </div>
       <div class="cd-field"><label>Foto</label><input type="file" name="foto" accept="image/*"></div>
     </div>
-    <div class="cd-field" style="margin-bottom:1rem"><label>Observaciones</label><textarea name="observaciones" rows="2" placeholder="Notas adicionales..."></textarea></div>
+    <div class="cd-field" style="margin-bottom:1rem"><label>Observaciones</label><textarea name="observaciones" rows="2"
+        placeholder="Notas adicionales..."></textarea></div>
     <div class="cd-form-actions">
       <button type="button" class="cd-btn-secondary" onclick="cdToggleForm()">Cancelar</button>
       <button type="submit" class="cd-btn-primary">Guardar conductor</button>
@@ -64,9 +70,9 @@
   <div class="cd-card">
     <div class="cd-card-foto">
       {% if c.foto %}
-        <img src="{{ c.foto.url }}" alt="{{ c.nombre }}">
+      <img src="{{ c.foto.url }}" alt="{{ c.nombre }}">
       {% else %}
-        <div class="cd-avatar">{{ c.nombre|first|upper }}</div>
+      <div class="cd-avatar">{{ c.nombre|first|upper }}</div>
       {% endif %}
       <span class="cd-estado cd-estado--{{ c.estado }}">
         {% if c.estado == 'activo' %}✅ Activo
@@ -85,7 +91,8 @@
     </div>
     <div class="cd-card-footer">
       <span class="cd-ingreso">Ingresó: {{ c.fecha_ingreso|date:"d M Y" }}</span>
-      <form method="post" action="{% url 'eliminar_conductor' c.id %}" onsubmit="return confirm('¿Eliminar a {{ c.nombre }}?')">
+      <form method="post" action="{% url 'eliminar_conductor' c.id %}"
+        onsubmit="return confirm('¿Eliminar a {{ c.nombre }}?')">
         {% csrf_token %}
         <button type="submit" class="cd-btn-del">🗑 Eliminar</button>
       </form>
@@ -96,7 +103,8 @@
 {% else %}
 <div class="card cd-empty">
   <p>👤 Aún no hay conductores registrados.</p>
-  <p style="font-size:13px; color:#a0aec0; margin-top:6px">Haz clic en "Registrar conductor" para agregar el primero.</p>
+  <p style="font-size:13px; color:#a0aec0; margin-top:6px">Haz clic en "Registrar conductor" para agregar el primero.
+  </p>
 </div>
 {% endif %}
 
@@ -104,10 +112,10 @@
 
 {% block extra_js %}
 <script>
-function cdToggleForm() {
-  const card = document.getElementById('cd-form-card');
-  card.style.display = card.style.display === 'none' ? 'block' : 'none';
-  if (card.style.display === 'block') card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+  function cdToggleForm() {
+    const card = document.getElementById('cd-form-card');
+    card.style.display = card.style.display === 'none' ? 'block' : 'none';
+    if (card.style.display === 'block') card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 </script>
 {% endblock %}

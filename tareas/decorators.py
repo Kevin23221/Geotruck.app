@@ -17,8 +17,10 @@ def roles_permitidos(*roles):
             if any(grupo in roles for grupo in grupos):
                 return view_func(request, *args, **kwargs)
             
+            print("NO TIENE PERMISOS")
             messages.error(request, "No tienes permisos para acceder a esta página. ")
             return redirect("dashboard")
         
         return wrapper
+    
     return decorator
