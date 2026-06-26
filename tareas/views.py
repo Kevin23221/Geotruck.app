@@ -172,3 +172,24 @@ def mapa_view(request):
     }
 
     return render(request, "mapas.html", context)
+
+
+@login_required(login_url='login')
+def reportes(request):
+    from .models import Ruta, Vehiculo
+    from django.contrib.auth.models import User
+
+    total_rutas = Ruta.objects.count()
+    total_vehiculos = Vehiculo.objects.count()
+    total_conductores = User.objects.count()
+    rutas_recientes = Ruta.objects.order_by('-fecha_creacion')[:5]
+    vehiculos_list = Vehiculo.objects.select_related('conductor').all()
+
+    context = {
+        'total_rutas': total_rutas,
+        'total_vehiculos': total_vehiculos,
+        'total_conductores': total_conductores,
+        'rutas_recientes': rutas_recientes,
+        'vehiculos_list': vehiculos_list,
+    }
+    return render(request, 'reportes.html', context)

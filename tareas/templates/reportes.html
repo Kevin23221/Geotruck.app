@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reportes.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Métricas generales -->
+<div class="metrics">
+  <div class="metric-card">
+    <div class="icon">🛣️</div>
+    <div class="value">{{ total_rutas }}</div>
+    <div class="label">Rutas creadas</div>
+  </div>
+  <div class="metric-card">
+    <div class="icon">🚚</div>
+    <div class="value">{{ total_vehiculos }}</div>
+    <div class="label">Vehículos registrados</div>
+  </div>
+  <div class="metric-card">
+    <div class="icon">👤</div>
+    <div class="value">{{ total_conductores }}</div>
+    <div class="label">Conductores activos</div>
+  </div>
+  <div class="metric-card">
+    <div class="icon">📍</div>
+    <div class="value">{{ total_rutas }}</div>
+    <div class="label">Ubicaciones registradas</div>
+  </div>
+</div>
+
+<!-- Rutas recientes -->
+<div class="card">
+  <h2>🛣️ Rutas recientes</h2>
+  {% if rutas_recientes %}
+  <table>
+    <thead>
+      <tr>
+        <th>Origen</th>
+        <th>Destino</th>
+        <th>Distancia</th>
+        <th>Creada por</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ruta in rutas_recientes %}
+      <tr>
+        <td>{{ ruta.origen }}</td>
+        <td>{{ ruta.destino }}</td>
+        <td><span class="badge badge-blue">{{ ruta.distancia_km }} km</span></td>
+        <td>{{ ruta.creada_por.username|default:"—" }}</td>
+        <td>{{ ruta.fecha_creacion|date:"d/m/Y H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay rutas registradas aún.</p>
+  {% endif %}
+</div>
+
+<!-- Vehículos y conductores -->
+<div class="card">
+  <h2>🚚 Vehículos y conductores asignados</h2>
+  {% if vehiculos_list %}
+  <table>
+    <thead>
+      <tr>
+        <th>Placa</th>
+        <th>Marca / Modelo</th>
+        <th>Destino</th>
+        <th>Conductor</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for v in vehiculos_list %}
+      <tr>
+        <td><span class="badge badge-blue">{{ v.placa }}</span></td>
+        <td>{{ v.marca }} {{ v.modelo }}</td>
+        <td>{{ v.destino_asignado|default:"—" }}</td>
+        <td>
+          {% if v.conductor %}
+          <div class="conductor-info">
+            <div class="avatar-mini">{{ v.conductor.username|first|upper }}</div>
+            {{ v.conductor.get_full_name|default:v.conductor.username }}
+          </div>
+          {% else %}
+          <span class="empty">Sin asignar</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if v.disponible %}
+            <span class="badge badge-green">Disponible</span>
+          {% else %}
+            <span class="badge" style="background:#fed7d7; color:#9b2c2c;">Ocupado</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No hay vehículos registrados aún.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
