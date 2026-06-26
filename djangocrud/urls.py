@@ -17,7 +17,12 @@ urlpatterns = [
     path('vehiculos/agregar/', views.agregar_vehiculo, name='agregar_vehiculo'),
     path('vehiculos/eliminar/<int:vehiculo_id>/', views.eliminar_vehiculo, name='eliminar_vehiculo'),
     path('dashboard/mapas', views.mapa_view, name='mapas'),
+<<<<<<< HEAD
     path('reportes/', views.reportes, name='reportes'),
+=======
+    path('dashboard/bitacoras/', views.viaje_crear, name='viaje-crear'),
+    path('dashboard/bitacoras/lista/', views.viaje_crear, name='viaje-historial'),
+>>>>>>> f299a49d524781ef44ad62969e6f88c93b6005d4
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

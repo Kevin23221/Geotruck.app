@@ -1,127 +1,232 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Bitacoras{% endblock %}
+{% block title %}Bitácoras{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/bitacoras.css' %}">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 {% endblock %}
 
 {% block content %}
 
-<!-- Métricas -->
-<div class="metrics">
-    <div class="metric-card">
-        <div class="label">Viajes activos</div>
-        <div class="value">{{ viajes_activos }}</div>
-        <div class="sub">En ruta ahora</div>
-    </div>
-    <div class="metric-card">
-        <div class="label">Conductores</div>
-        <div class="value">{{ total_conductores }}</div>
-        <div class="sub">Registrados y activos</div>
-    </div>
-    <div class="metric-card">
-        <div class="label">Viajes hoy</div>
-        <div class="value">{{ viajes_hoy.count }}</div>
-        <div class="sub">Total de la jornada</div>
-    </div>
-    <div class="metric-card">
-        <div class="label">Completados</div>
-        <div class="value">{{ viajes_hoy|length }}</div>
-        <div class="sub">Finalizados hoy</div>
-    </div>
+<!-- Encabezado de página -->
+<div class="bk-page-header">
+  <div class="bk-page-header-icon">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/>
+      <rect x="9" y="11" width="14" height="10" rx="2"/>
+      <circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+    </svg>
+  </div>
+  <div>
+    <h1 class="bk-page-title">Bitácora de viajes</h1>
+    <p class="bk-page-sub">Registro de operaciones, gastos y evidencias</p>
+  </div>
 </div>
 
-<!-- Mapa + Alertas -->
-<div class="row-2">
-    <div class="card">
-        <h2>🗺️ Mapa en vivo</h2>
-        <div id="map"></div>
-    </div>
-
-    <div class="card">
-        <h2>🔔 Alertas recientes</h2>
-        <div class="alert-item">
-            <div class="alert-dot dot-danger"></div>
-            <div>
-                <div class="alert-text">Motor apagado fuera de zona</div>
-                <div class="alert-time">Hace 15 min</div>
-            </div>
-        </div>
-        <div class="alert-item">
-            <div class="alert-dot dot-warning"></div>
-            <div>
-                <div class="alert-text">Retraso en entrega — Bogotá › Cali</div>
-                <div class="alert-time">Hace 40 min</div>
-            </div>
-        </div>
-        <div class="alert-item">
-            <div class="alert-dot dot-info"></div>
-            <div>
-                <div class="alert-text">Exceso de velocidad detectado</div>
-                <div class="alert-time">Hace 1 h</div>
-            </div>
-        </div>
-    </div>
+<!-- Tabs -->
+<div class="bk-tabs">
+  <button class="bk-tab bk-tab--active" onclick="bkShowTab('nuevo', this)">+ &nbsp;Nuevo viaje</button>
+  <button class="bk-tab" onclick="bkShowTab('historial', this)">↺ &nbsp;Historial</button>
 </div>
 
-<!-- Tabla viajes -->
-<div class="card">
-    <h2>🛣️ Viajes de hoy</h2>
-    {% if viajes_hoy %}
-    <table class="trip-table">
-        <thead>
-            <tr>
-                <th>Conductor</th>
-                <th>Ruta</th>
-                <th>Vehículo</th>
-                <th>Inicio</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for viaje in viajes_hoy %}
-            <tr>
-                <td>{{ viaje.conductor.usuario.get_full_name|default:viaje.conductor.usuario.username }}</td>
-                <td>{{ viaje.origen }} › {{ viaje.destino }}</td>
-                <td>{{ viaje.vehiculo.placa }}</td>
-                <td>{{ viaje.fecha_inicio|date:"H:i" }}</td>
-                <td>
-                    {% if viaje.estado == 'en_ruta' %}
-                    <span class="pill pill-ruta">En ruta</span>
-                    {% elif viaje.estado == 'pausa' %}
-                    <span class="pill pill-pausa">Pausa</span>
-                    {% elif viaje.estado == 'completado' %}
-                    <span class="pill pill-done">Completado</span>
-                    {% else %}
-                    <span class="pill pill-cancel">Cancelado</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p style="color:#a0aec0; font-size:0.9rem;">No hay viajes registrados hoy.</p>
-    {% endif %}
+<!-- ── TAB: NUEVO VIAJE ── -->
+<div id="bk-tab-nuevo">
+  <form method="post" action="{% url 'viaje-crear' %}" enctype="multipart/form-data" id="bk-form" novalidate>
+    {% csrf_token %}
+
+    <!-- Control de activos -->
+    <div class="card bk-card">
+      <h2>🪪 Control de activos</h2>
+      <div class="bk-grid-3">
+        <div class="bk-field"><label for="conductor_nombre">Nombre del conductor</label><input type="text" id="conductor_nombre" name="conductor_nombre" placeholder="Ej. Carlos Ramírez"></div>
+        <div class="bk-field"><label for="conductor_licencia">Licencia</label><input type="text" id="conductor_licencia" name="conductor_licencia" placeholder="Ej. C2-12345"></div>
+        <div class="bk-field"><label for="conductor_cedula">Cédula / ID</label><input type="text" id="conductor_cedula" name="conductor_cedula" placeholder="Ej. 1020304050"></div>
+      </div>
+      <div class="bk-grid-2">
+        <div class="bk-field"><label for="placa">Placa del vehículo</label><input type="text" id="placa" name="placa" placeholder="Ej. ABC-123"></div>
+        <div class="bk-field"><label for="modelo">Modelo</label><input type="text" id="modelo" name="modelo" placeholder="Ej. Kenworth T800 2021"></div>
+      </div>
+    </div>
+
+    <!-- Operación del viaje -->
+    <div class="card bk-card">
+      <h2>🗺️ Operación del viaje</h2>
+      <div class="bk-grid-2">
+        <div class="bk-field"><label for="fecha_salida">Fecha de salida</label><input type="date" id="fecha_salida" name="fecha_salida"></div>
+        <div class="bk-field"><label for="fecha_llegada">Fecha de llegada</label><input type="date" id="fecha_llegada" name="fecha_llegada"></div>
+      </div>
+      <div class="bk-grid-2">
+        <div class="bk-field"><label for="origen">Origen</label><input type="text" id="origen" name="origen" placeholder="Ej. Bogotá, Cundinamarca"></div>
+        <div class="bk-field"><label for="destino">Destino</label><input type="text" id="destino" name="destino" placeholder="Ej. Medellín, Antioquia"></div>
+      </div>
+      <div class="bk-grid-3">
+        <div class="bk-field"><label for="km_recorridos">Km recorridos</label><input type="number" id="km_recorridos" name="km_recorridos" placeholder="0" min="0"></div>
+        <div class="bk-field"><label for="tipo_carga">Tipo de carga</label><input type="text" id="tipo_carga" name="tipo_carga" placeholder="Ej. Mercancía seca"></div>
+        <div class="bk-field"><label for="recursos">Recursos asignados</label><input type="text" id="recursos" name="recursos" placeholder="Ej. GPS, remolque"></div>
+      </div>
+    </div>
+
+    <!-- Control financiero -->
+    <div class="card bk-card">
+      <h2>💰 Control financiero</h2>
+      <div id="bk-gastos"></div>
+      <button type="button" class="bk-btn-add" onclick="bkAgregarGasto()">+ &nbsp;Agregar gasto</button>
+      <div class="bk-totals">
+        <div class="bk-total-item"><p class="bk-total-label">Gastos operativos</p><p class="bk-total-val" id="bk-total-op">$0</p></div>
+        <div class="bk-total-item"><p class="bk-total-label">Gastos adicionales</p><p class="bk-total-val" id="bk-total-ad">$0</p></div>
+        <div class="bk-total-item"><p class="bk-total-label">Total del viaje</p><p class="bk-total-val bk-total-val--highlight" id="bk-total-viaje">$0</p></div>
+      </div>
+    </div>
+
+    <!-- Evidencias -->
+    <div class="card bk-card">
+      <h2>📷 Evidencias y recibos</h2>
+      <label class="bk-upload-zone" for="evidencias">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <span>Toca para adjuntar fotos de recibos o documentos</span>
+        <input type="file" id="evidencias" name="evidencias" accept="image/*,application/pdf" multiple onchange="bkPreviewFotos(event)">
+      </label>
+      <div class="bk-foto-grid" id="bk-foto-grid"></div>
+    </div>
+
+    <!-- Observaciones -->
+    <div class="card bk-card bk-card--muted">
+      <h2>📝 Observaciones del viaje</h2>
+      <div class="bk-field">
+        <textarea id="observaciones" name="observaciones" rows="3" placeholder="Notas adicionales, incidentes, condiciones de la ruta..."></textarea>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="bk-actions">
+      <button type="button" class="bk-btn bk-btn--secondary" onclick="bkLimpiar()">Limpiar</button>
+      <button type="submit" class="bk-btn bk-btn--primary">Guardar viaje</button>
+    </div>
+
+  </form>
 </div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- ── TAB: HISTORIAL ── -->
+<div id="bk-tab-historial" style="display:none">
+  {% if viajes %}
+    {% for v in viajes %}
+    <div class="card bk-viaje-card">
+      {% with img=v.evidencias.first %}
+        {% if img %}
+          <img src="{{ img.imagen.url }}" alt="Evidencia" class="bk-viaje-img">
+        {% else %}
+          <div class="bk-viaje-img bk-viaje-img--empty">📷</div>
+        {% endif %}
+      {% endwith %}
+      <div class="bk-viaje-info">
+        <p class="bk-viaje-ruta">{{ v.origen }} → {{ v.destino }}</p>
+        <div class="bk-viaje-meta">
+          <span>📅 {{ v.fecha_salida|date:"d M Y" }}</span>
+          <span>👤 {{ v.conductor_nombre }}</span>
+          <span>🚛 {{ v.placa }}</span>
+          {% if v.km_recorridos %}<span>🛣️ {{ v.km_recorridos|floatformat:0 }} km</span>{% endif %}
+        </div>
+        <div class="bk-viaje-badges">
+          {% if v.total_operativo %}<span class="bk-badge bk-badge--op">⛽ Op: ${{ v.total_operativo|floatformat:0 }}</span>{% endif %}
+          {% if v.total_adicional %}<span class="bk-badge bk-badge--fin">🍽 Adic: ${{ v.total_adicional|floatformat:0 }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="bk-viaje-total-box">
+        <p class="bk-viaje-total-label">Total</p>
+        <p class="bk-viaje-total">${{ v.total_viaje|floatformat:0 }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="bk-empty">Aún no hay viajes registrados.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
 <script>
-    const map = L.map('map').setView([4.711, -74.0721], 6);
+(function () {
+  const CATS_OP = ['Peaje', 'Combustible', 'Manifiesto de carga'];
+  const CATS_AD = ['Hospedaje', 'Almuerzo', 'Desayuno', 'Cena', 'Servicio mecánico', 'Otro'];
+  const ALL_CATS = [...CATS_OP, ...CATS_AD];
+  let gastoIdx = 0;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+  window.bkShowTab = function (tab, btn) {
+    document.getElementById('bk-tab-nuevo').style.display = tab === 'nuevo' ? 'block' : 'none';
+    document.getElementById('bk-tab-historial').style.display = tab === 'historial' ? 'block' : 'none';
+    document.querySelectorAll('.bk-tab').forEach(el => el.classList.remove('bk-tab--active'));
+    btn.classList.add('bk-tab--active');
+  };
 
+  window.bkAgregarGasto = function (desc = '', cat = 'Peaje', monto = '') {
+    const i = gastoIdx++;
+    const opts = ALL_CATS.map(c => `<option value="${c}"${c === cat ? ' selected' : ''}>${c}</option>`).join('');
+    const row = document.createElement('div');
+    row.className = 'bk-gasto-row';
+    row.id = 'bk-gasto-' + i;
+    row.innerHTML = `
+      <div class="bk-field"><label>Descripción</label><input type="text" name="gastos_descripcion[]" value="${desc}" placeholder="Ej. Peaje Km 148"></div>
+      <div class="bk-field"><label>Categoría</label><select name="gastos_categoria[]" id="bk-cat-${i}" onchange="bkCalcTotales()">${opts}</select></div>
+      <div class="bk-field"><label>Monto (COP)</label><input type="number" name="gastos_monto[]" id="bk-monto-${i}" value="${monto}" placeholder="0" min="0" oninput="bkCalcTotales()"></div>
+      <button type="button" class="bk-btn-del" onclick="bkEliminarGasto(${i})" title="Eliminar">✕</button>`;
+    document.getElementById('bk-gastos').appendChild(row);
+    bkCalcTotales();
+  };
 
-    ubicaciones.forEach(function (u) {
-        L.marker([u.lat, u.lng])
-            .addTo(map)
-            .bindPopup(
-                '<strong>' + u.conductor + '</strong><br>' +
-                u.origen + ' → ' + u.destino
-            );
+  window.bkEliminarGasto = function (i) {
+    const el = document.getElementById('bk-gasto-' + i);
+    if (el) { el.remove(); bkCalcTotales(); }
+  };
+
+  window.bkCalcTotales = function () {
+    let op = 0, ad = 0;
+    document.querySelectorAll('[name="gastos_monto[]"]').forEach((inp, idx) => {
+      const catEl = document.querySelectorAll('[name="gastos_categoria[]"]')[idx];
+      const val = parseFloat(inp.value) || 0;
+      if (catEl && CATS_OP.includes(catEl.value)) op += val;
+      else ad += val;
     });
+    const fmt = n => '$' + Math.round(n).toLocaleString('es-CO');
+    document.getElementById('bk-total-op').textContent = fmt(op);
+    document.getElementById('bk-total-ad').textContent = fmt(ad);
+    document.getElementById('bk-total-viaje').textContent = fmt(op + ad);
+  };
+
+  window.bkPreviewFotos = function (e) {
+    const grid = document.getElementById('bk-foto-grid');
+    Array.from(e.target.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const thumb = document.createElement('div');
+        thumb.className = 'bk-foto-thumb';
+        thumb.innerHTML = `<img src="${ev.target.result}" alt="${file.name}"><button type="button" onclick="this.parentElement.remove()" title="Quitar">✕</button>`;
+        grid.appendChild(thumb);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  window.bkLimpiar = function () {
+    document.getElementById('bk-form').reset();
+    document.getElementById('bk-gastos').innerHTML = '';
+    document.getElementById('bk-foto-grid').innerHTML = '';
+    gastoIdx = 0;
+    bkCalcTotales();
+    bkAgregarGasto('Peaje entrada', 'Peaje');
+    bkAgregarGasto('Combustible', 'Combustible');
+  };
+
+  bkAgregarGasto('Peaje entrada', 'Peaje');
+  bkAgregarGasto('Combustible', 'Combustible');
+
+  const hoy = new Date().toISOString().split('T')[0];
+  const fs = document.getElementById('fecha_salida');
+  if (fs && !fs.value) fs.value = hoy;
+})();
 </script>
 {% endblock %}
