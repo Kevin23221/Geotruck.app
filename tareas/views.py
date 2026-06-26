@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from .models import Ruta, Vehiculo, Viaje, GastoViaje, EvidenciaViaje
 from decimal import Decimal
+from .decorators import roles_permitidos
 import json
+from .utils import (es_admin, es_supervisor, es_conductor)
 
 def home(request):
     return render(request, 'home.html')
@@ -33,6 +35,9 @@ def register(request):
         else:
 
             user = User.objects.create_user(username=username, email=email, password=password1)
+            grupo = Group.objects.get(name="Conductor")
+            user.groups.add(grupo)
+
             login(request, user)
             messages.success(request, f'¡Bienvenido a GeoTruck, {username}!')
             return redirect('dashboard')
@@ -60,9 +65,9 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
+@login_required(login_url='login')
 def dashboard(request):
-    return render(request, 'dashboard.html')
-
+    return render(request, "dashboard.html")
 
 @login_required(login_url='login')
 def rutas(request):
@@ -70,6 +75,7 @@ def rutas(request):
     return render(request, 'rutas.html', {'rutas': lista_rutas})
 
 @login_required(login_url='login')
+@roles_permitidos("administrador", "supervisor")
 def agregar_ruta(request):
     if request.method == 'POST':
         origen      = request.POST.get('origen', '').strip()
@@ -92,10 +98,11 @@ def agregar_ruta(request):
     return redirect('rutas')
 
 @login_required(login_url='login')
+@roles_permitidos("administrador", "supervisor")
 def eliminar_ruta(request, ruta_id):
     ruta = get_object_or_404(Ruta, id=ruta_id)
 
-    if request.user.is_staff or ruta.creada_por == request.user:
+    if es_admin(request.user) or ruta.creada_por == request.user:
         ruta.delete()
         messages.success(request, 'Ruta eliminada.')
     else:
@@ -110,6 +117,7 @@ def vehiculos(request):
     return render(request, 'vehiculos.html', {'vehiculos': lista, 'usuarios': usuarios})
 
 @login_required(login_url='login')
+@roles_permitidos("administrador", "supervisor")
 def agregar_vehiculo(request):
     if request.method == 'POST':
         placa        = request.POST.get('placa', '').strip().upper()
@@ -139,10 +147,11 @@ def agregar_vehiculo(request):
     return redirect('vehiculos')
 
 @login_required(login_url='login')
+@roles_permitidos("administrador", "supervisor")
 def eliminar_vehiculo(request, vehiculo_id):
     vehiculo = get_object_or_404(Vehiculo, id=vehiculo_id)
 
-    if request.user.is_staff or vehiculo.conductor == request.user:
+    if es_admin(request.user) or vehiculo.conductor == request.user:
         vehiculo.delete()
         messages.success(request, 'Vehículo eliminado.')
     else:
@@ -174,16 +183,19 @@ def mapa_view(request):
 
     return render(request, "mapas.html", context)
 
-<<<<<<< HEAD
 
 @login_required(login_url='login')
+@roles_permitidos("administrador", "supervisor")
 def reportes(request):
-    from .models import Ruta, Vehiculo
-    from django.contrib.auth.models import User
+
+    if not (es_admin(request.user) or es_supervisor(request.user)):
+        messages.error(request, "No tienes permiso para acceder a Reportes.")
+        return redirect("dashboard")
 
     total_rutas = Ruta.objects.count()
     total_vehiculos = Vehiculo.objects.count()
     total_conductores = User.objects.count()
+
     rutas_recientes = Ruta.objects.order_by('-fecha_creacion')[:5]
     vehiculos_list = Vehiculo.objects.select_related('conductor').all()
 
@@ -194,11 +206,12 @@ def reportes(request):
         'rutas_recientes': rutas_recientes,
         'vehiculos_list': vehiculos_list,
     }
+
     return render(request, 'reportes.html', context)
-=======
 CATS_OP = {'Peaje', 'Combustible', 'Manifiesto de carga'}
 
 @login_required(login_url='login')
+@roles_permitidos("administrador", "supervisor")
 def viaje_crear(request):
     if request.method == 'POST':
         v = Viaje.objects.create(
@@ -236,4 +249,3 @@ def viaje_crear(request):
 
     viajes = Viaje.objects.order_by('-creado_en')
     return render(request, 'bitacoras.html', {'viajes': viajes})
->>>>>>> f299a49d524781ef44ad62969e6f88c93b6005d4

@@ -22,14 +22,14 @@
                 <span class="icon">📊</span> Dashboard
             </a>
             <a href="{% url 'mapas' %}"><span class="icon">🗺️</span> Mapa en vivo</a>
-            <a href="{% url 'rutas' %}"><span class="icon">🛣️</span> Rutas</a>
             <a href="{% url 'viaje-crear' %}"><span class="icon">📓</span> Bitácoras</a>
-
+            {% if es_admin or es_supervisor %}
             <div class="nav-section">Gestión</div>
             <a href="#"><span class="icon">👤</span> Conductores</a>
             <a href="{% url 'vehiculos' %}"><span class="icon">🚚</span> Vehículos</a>
             <a href="{% url 'reportes' %}"><span class="icon">📈</span> Reportes</a>
-
+            <a href="{% url 'rutas' %}"><span class="icon">🛣️</span> Rutas</a>
+            {% endif %}
             <div class="nav-section">Sistema</div>
             <a href="#"><span class="icon">⚙️</span> Configuración</a>
         </nav>

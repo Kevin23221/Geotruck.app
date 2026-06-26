@@ -91,7 +91,7 @@ body {
     gap: 1rem;
 }
 
-.metric-card {
+.metric-card { 
     background: #fff;
     border-radius: 12px;
     padding: 1.25rem;
@@ -127,6 +127,7 @@ body {
 
 /* ── CARD ── */
 .card {
+
     background: #fff;
     border-radius: 12px;
     padding: 1.25rem;
