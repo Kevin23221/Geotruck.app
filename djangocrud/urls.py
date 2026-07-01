@@ -31,6 +31,11 @@ urlpatterns = [
     path('dashboard/conductores/', views.conductores, name='conductores'),
     path('conductores/agregar/', views.agregar_conductor, name='agregar_conductor'),
     path('conductores/eliminar/<int:conductor_id>/', views.eliminar_conductor, name='eliminar_conductor'),
+
+    path('api/guardar-ubicacion/', views.guardar_ubicacion, name='guardar_ubicacion'),
+    path('api/ubicaciones-activas/', views.ubicaciones_activas, name='ubicaciones_activas'),
+    path('conductor/', views.panel_conductor, name='panel_conductor'),
+    path('api/ruta-conductor/<int:conductor_id>/', views.ruta_conductor, name='ruta_conductor'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

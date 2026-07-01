@@ -9,6 +9,9 @@ from decimal import Decimal
 from .decorators import roles_permitidos
 import json
 from .utils import (es_admin, es_supervisor, es_conductor)
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import UbicacionConductor
 
 
 def home(request):
@@ -315,3 +318,71 @@ def eliminar_conductor(request, conductor_id):
     conductor.delete()
     messages.success(request, 'Conductor eliminado.')
     return redirect('conductores')
+
+
+@csrf_exempt
+@login_required(login_url='login')
+def guardar_ubicacion(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        lat = data.get('lat')
+        lng = data.get('lng')
+
+        if lat and lng:
+            UbicacionConductor.objects.create(
+                conductor=request.user,
+                latitud=lat,
+                longitud=lng
+            )
+            return JsonResponse({'status': 'ok'})
+        return JsonResponse({'status': 'error', 'msg': 'Faltan datos'}, status=400)
+
+    return JsonResponse({'status': 'method not allowed'}, status=405)
+
+
+@login_required(login_url='login')
+def ubicaciones_activas(request):
+    from django.db.models import Max
+
+    conductores = UbicacionConductor.objects.values('conductor').annotate(
+        ultima=Max('timestamp')
+    )
+
+    resultado = []
+    for c in conductores:
+        ub = UbicacionConductor.objects.filter(
+            conductor=c['conductor'],
+            timestamp=c['ultima']
+        ).select_related('conductor').first()
+
+        if ub:
+            resultado.append({
+                'conductor': ub.conductor.get_full_name() or ub.conductor.username,
+                'conductor_id': ub.conductor.id,
+                'lat': float(ub.latitud),
+                'lng': float(ub.longitud),
+                'hora': ub.timestamp.strftime('%H:%M:%S')
+            })
+
+    return JsonResponse({'ubicaciones': resultado})
+
+
+@login_required(login_url='login')
+def panel_conductor(request):
+    return render(request, 'panel_conductor.html')
+
+@login_required(login_url='login')
+def ruta_conductor(request, conductor_id):
+    puntos = UbicacionConductor.objects.filter(
+        conductor_id=conductor_id
+    ).order_by('timestamp').values('latitud', 'longitud', 'timestamp')
+
+    resultado = [
+        {
+            'lat': float(p['latitud']),
+            'lng': float(p['longitud']),
+        }
+        for p in puntos
+    ]
+
+    return JsonResponse({'puntos': resultado})

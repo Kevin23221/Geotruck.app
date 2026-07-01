@@ -23,6 +23,9 @@
             </a>
             <a href="{% url 'mapas' %}"><span class="icon">🗺️</span> Mapa en vivo</a>
             <a href="{% url 'viaje-crear' %}"><span class="icon">📓</span> Bitácoras</a>
+            {% if es_conductor %}
+            <a href="{% url 'panel_conductor' %}"><span class="icon">📍</span> Mi ubicación GPS</a>
+            {% endif %}
             {% if es_admin or es_supervisor %}
             <div class="nav-section">Gestión</div>
             <a href="{% url 'conductores' %}"><span class="icon">👤</span> Conductores</a>

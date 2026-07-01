@@ -1,0 +1,56 @@
+.panel {
+  max-width: 480px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.panel h2 { font-size: 1.3rem; font-weight: 700; color: #1a1f2e; margin-bottom: 0.5rem; }
+.panel .sub { font-size: 0.9rem; color: #718096; margin-bottom: 1.5rem; }
+
+.status-box {
+  background: #f4f6f9;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: #4a5568;
+  min-height: 60px;
+}
+
+.btn {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin: 0.4rem;
+  font-weight: 600;
+}
+
+.btn-start { background: #48bb78; color: #fff; }
+.btn-start:hover { background: #38a169; }
+.btn-stop { background: #fc8181; color: #fff; }
+.btn-stop:hover { background: #e53e3e; }
+
+.coords { font-size: 0.82rem; color: #718096; margin-top: 1rem; }
+.log { font-size: 0.75rem; color: #a0aec0; margin-top: 0.75rem; }
+
+.indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.ind-green { background: #48bb78; animation: pulse 1.5s infinite; }
+.ind-gray  { background: #a0aec0; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
