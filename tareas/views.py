@@ -33,7 +33,7 @@ def register(request):
             messages.error(request, 'Ese correo ya está registrado.')
         else:
             user = User.objects.create_user(username=username, email=email, password=password1)
-            grupo = Group.objects.get(name="Conductor")
+            grupo = Group.objects.get(name="conductor")
             user.groups.add(grupo)
 
             login(request, user)
